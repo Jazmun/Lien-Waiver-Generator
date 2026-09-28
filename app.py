@@ -10,10 +10,11 @@ from docx.shared import Inches, Pt, RGBColor
 from num2words import num2words
 import streamlit as st
 
-# Set page title and layout
-st.set_page_config(page_title="Lien Waiver Generator", page_icon="📄", layout="centered")
+st.set_page_config(
+    page_title="Lien Waiver Generator", page_icon="📄", layout="centered"
+)
 
-# Company Defaults (La Salle Landscaping)
+# Company Defaults
 COMPANY_NAME = "La Salle Landscaping and Lawn Care"
 COMPANY_ADDRESS = "PO BOX 68, Bellaire, TX 77402"
 COMPANY_PHONE = "713-657-0875"
@@ -21,7 +22,7 @@ COMPANY_EMAIL = "accounting@lasallelandscaping.com"
 OFFICER_NAME = "Ben Gil"
 OFFICER_TITLE = "Controller"
 
-# Helper Functions for DOCX styling
+
 def set_cell_background(cell, fill_hex):
   tcPr = cell._tc.get_or_add_tcPr()
   tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>'))
@@ -65,8 +66,8 @@ def format_currency_words(amount):
 def generate_docx(data):
   doc = docx.Document()
   for section in doc.sections:
-    section.top_margin = Inches(0.7)
-    section.bottom_margin = Inches(0.7)
+    section.top_margin = Inches(0.65)
+    section.bottom_margin = Inches(0.65)
     section.left_margin = Inches(0.75)
     section.right_margin = Inches(0.75)
 
@@ -79,7 +80,6 @@ def generate_docx(data):
   row = header_table.rows[0]
   row.cells[0].width, row.cells[1].width = col_widths
 
-  # Logo
   left_p = row.cells[0].paragraphs[0]
   left_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
   left_run = left_p.add_run()
@@ -91,7 +91,6 @@ def generate_docx(data):
     left_run.font.size = Pt(14)
     left_run.font.color.rgb = RGBColor(0, 128, 55)
 
-  # Company Info
   right_p = row.cells[1].paragraphs[0]
   right_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
   r1 = right_p.add_run(f"{COMPANY_NAME.upper()}\n")
@@ -105,10 +104,9 @@ def generate_docx(data):
   r2.font.size = Pt(9.5)
   r2.font.color.rgb = RGBColor(80, 80, 80)
 
-  # Green divider line
   div = doc.add_paragraph()
-  div.paragraph_format.space_before = Pt(6)
-  div.paragraph_format.space_after = Pt(12)
+  div.paragraph_format.space_before = Pt(4)
+  div.paragraph_format.space_after = Pt(10)
   div._p.get_or_add_pPr().append(
       parse_xml(
           f'<w:pBdr {nsdecls("w")}><w:bottom w:val="single" w:sz="16"'
@@ -116,7 +114,7 @@ def generate_docx(data):
       )
   )
 
-  # 2. Document Title & Texas Statute Reference
+  # 2. Document Title
   is_progress = data["waiver_type"] == "Progress Payment"
   title_text = (
       "CONDITIONAL WAIVER AND RELEASE ON PROGRESS PAYMENT"
@@ -135,16 +133,16 @@ def generate_docx(data):
   title_p.paragraph_format.space_after = Pt(2)
   t_run = title_p.add_run(title_text)
   t_run.bold = True
-  t_run.font.size = Pt(13.5)
+  t_run.font.size = Pt(13)
   t_run.font.color.rgb = RGBColor(15, 34, 64)
 
   sub_p = doc.add_paragraph()
   sub_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
   sub_p.paragraph_format.space_before = Pt(0)
-  sub_p.paragraph_format.space_after = Pt(10)
+  sub_p.paragraph_format.space_after = Pt(8)
   s_run = sub_p.add_run(statute_code)
   s_run.bold = True
-  s_run.font.size = Pt(9.5)
+  s_run.font.size = Pt(9)
   s_run.font.color.rgb = RGBColor(100, 100, 100)
 
   # 3. Texas Statutory Notice Box
@@ -153,7 +151,7 @@ def generate_docx(data):
   n_cell = notice_table.rows[0].cells[0]
   n_cell.width = Inches(7.0)
   set_cell_background(n_cell, "F4F6F4")
-  set_cell_margins(n_cell, top=80, bottom=80, left=120, right=120)
+  set_cell_margins(n_cell, top=70, bottom=70, left=100, right=100)
   set_cell_border(
       n_cell,
       top=dict(val="single", sz=6, color="008037"),
@@ -176,12 +174,11 @@ def generate_docx(data):
   nr2.font.size = Pt(8)
   nr2.font.color.rgb = RGBColor(60, 60, 60)
 
-  # Spacing
   sp = doc.add_paragraph()
-  sp.paragraph_format.space_before = Pt(6)
+  sp.paragraph_format.space_before = Pt(5)
   sp.paragraph_format.space_after = Pt(0)
 
-  # 4. Data Details Grid
+  # 4. Details Grid
   table_rows = [
       (
           "Project / Property:",
@@ -212,8 +209,8 @@ def generate_docx(data):
     c1.width, c2.width = Inches(2.2), Inches(4.8)
     set_cell_background(c1, "F8F9FA")
     set_cell_background(c2, "FFFFFF")
-    set_cell_margins(c1, top=70, bottom=70, left=100, right=100)
-    set_cell_margins(c2, top=70, bottom=70, left=100, right=100)
+    set_cell_margins(c1, top=60, bottom=60, left=90, right=90)
+    set_cell_margins(c2, top=60, bottom=60, left=90, right=90)
     for c in (c1, c2):
       set_cell_border(
           c,
@@ -226,12 +223,12 @@ def generate_docx(data):
     p1 = c1.paragraphs[0]
     rn1 = p1.add_run(label)
     rn1.bold = True
-    rn1.font.size = Pt(9.5)
+    rn1.font.size = Pt(9)
     rn1.font.color.rgb = RGBColor(30, 41, 59)
 
     p2 = c2.paragraphs[0]
     rn2 = p2.add_run(val)
-    rn2.font.size = Pt(9.5)
+    rn2.font.size = Pt(9)
     rn2.font.color.rgb = (
         RGBColor(0, 102, 51) if "Amount" in label else RGBColor(30, 41, 59)
     )
@@ -241,8 +238,8 @@ def generate_docx(data):
   # 5. Statutory Legal Body
   owner_short = data["owner_info"].split("\n")[0]
   p_body1 = doc.add_paragraph()
-  p_body1.paragraph_format.space_before = Pt(10)
-  p_body1.paragraph_format.space_after = Pt(5)
+  p_body1.paragraph_format.space_before = Pt(8)
+  p_body1.paragraph_format.space_after = Pt(4)
   p_body1.paragraph_format.line_spacing = 1.15
   rb1 = p_body1.add_run(
       f"On receipt by the signer of this document of a check or electronic"
@@ -253,12 +250,12 @@ def generate_docx(data):
       " payment notice, or any right against a payment bond that the signer has"
       " on the property referenced above to the following extent:"
   )
-  rb1.font.size = Pt(9.5)
+  rb1.font.size = Pt(9)
   rb1.font.color.rgb = RGBColor(30, 41, 59)
 
   p_body2 = doc.add_paragraph()
   p_body2.paragraph_format.space_before = Pt(0)
-  p_body2.paragraph_format.space_after = Pt(5)
+  p_body2.paragraph_format.space_after = Pt(4)
   p_body2.paragraph_format.line_spacing = 1.15
 
   if is_progress:
@@ -279,66 +276,105 @@ def generate_docx(data):
         " should verify evidence of payment to the signer."
     )
   rb2 = p_body2.add_run(rb2_text)
-  rb2.font.size = Pt(9.5)
+  rb2.font.size = Pt(9)
   rb2.font.color.rgb = RGBColor(30, 41, 59)
 
   if is_progress:
     p_body3 = doc.add_paragraph()
     p_body3.paragraph_format.space_before = Pt(0)
-    p_body3.paragraph_format.space_after = Pt(10)
+    p_body3.paragraph_format.space_after = Pt(8)
+    p_body3.paragraph_format.line_spacing = 1.15
     rb3 = p_body3.add_run(
         "Before any recipient of this document relies on this document, the"
         " recipient should verify evidence of payment to the signer."
     )
     rb3.bold = True
-    rb3.font.size = Pt(9.5)
+    rb3.font.size = Pt(9)
 
-  # 6. Signatures & Notary Grid
-  sig_table = doc.add_table(rows=1, cols=2)
-  sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-  sig_table.autofit = False
-  c_claim, c_notary = sig_table.rows[0].cells[0], sig_table.rows[0].cells[1]
-  c_claim.width, c_notary.width = Inches(3.4), Inches(3.4)
+  # 6. Signature Section (Claimant Only OR Claimant + Notary)
+  include_notary = data["include_notary"]
 
-  for c in (c_claim, c_notary):
-    set_cell_background(c, "FAFAFA")
-    set_cell_margins(c, top=80, bottom=80, left=100, right=100)
+  if include_notary:
+    sig_table = doc.add_table(rows=1, cols=2)
+    sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    sig_table.autofit = False
+    c_claim, c_notary = sig_table.rows[0].cells[0], sig_table.rows[0].cells[1]
+    c_claim.width, c_notary.width = Inches(3.4), Inches(3.4)
+
+    for c in (c_claim, c_notary):
+      set_cell_background(c, "FAFAFA")
+      set_cell_margins(c, top=80, bottom=80, left=90, right=90)
+      set_cell_border(
+          c,
+          top=dict(sz=6, color="CCCCCC"),
+          bottom=dict(sz=6, color="CCCCCC"),
+          left=dict(sz=6, color="CCCCCC"),
+          right=dict(sz=6, color="CCCCCC"),
+      )
+
+    # Claimant
+    cp = c_claim.paragraphs[0]
+    cr1 = cp.add_run("CLAIMANT EXECUTION\n")
+    cr1.bold = True
+    cr1.font.size = Pt(9.5)
+    cr1.font.color.rgb = RGBColor(0, 102, 51)
+    cr2 = c_claim.add_paragraph().add_run(
+        f"Company: {COMPANY_NAME}\n\n\nBy: ____________________________________\nName:"
+        f" {OFFICER_NAME}\nTitle: {OFFICER_TITLE}\nDate:"
+        " __________________________________"
+    )
+    cr2.font.size = Pt(8.5)
+
+    # Notary Block with dedicated Stamp & Signature areas
+    np = c_notary.paragraphs[0]
+    nr1 = np.add_run("NOTARY ACKNOWLEDGMENT (TEXAS)\n")
+    nr1.bold = True
+    nr1.font.size = Pt(9.5)
+    nr1.font.color.rgb = RGBColor(0, 102, 51)
+    nr2 = c_notary.add_paragraph().add_run(
+        "State of Texas, County of Harris\n"
+        "Sworn to and subscribed before me on this\n"
+        "_____ day of __________________, 20____,\n"
+        f"by Ben Gil, Controller of {COMPANY_NAME}.\n\n"
+        "[ NOTARY SIGNATURE STAMP ]\n\n"
+        "________________________________________\n"
+        "Notary Public, State of Texas\n\n"
+        "[ AFFIX NOTARY SEAL / STAMP HERE ]"
+    )
+    nr2.font.size = Pt(8)
+    nr2.font.color.rgb = RGBColor(60, 60, 60)
+
+  else:
+    # Full-width Claimant Execution
+    sig_table = doc.add_table(rows=1, cols=1)
+    sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    sig_table.autofit = False
+    c_claim = sig_table.rows[0].cells[0]
+    c_claim.width = Inches(7.0)
+    set_cell_background(c_claim, "FAFAFA")
+    set_cell_margins(c_claim, top=90, bottom=90, left=120, right=120)
     set_cell_border(
-        c,
+        c_claim,
         top=dict(sz=6, color="CCCCCC"),
         bottom=dict(sz=6, color="CCCCCC"),
         left=dict(sz=6, color="CCCCCC"),
         right=dict(sz=6, color="CCCCCC"),
     )
 
-  # Execution
-  cp = c_claim.paragraphs[0]
-  cr1 = cp.add_run("CLAIMANT EXECUTION\n")
-  cr1.bold = True
-  cr1.font.size = Pt(10)
-  cr1.font.color.rgb = RGBColor(0, 102, 51)
-  cr2 = c_claim.add_paragraph().add_run(
-      f"Company: {COMPANY_NAME}\n\n\nBy: ____________________________________\nName:"
-      f" {OFFICER_NAME}\nTitle: {OFFICER_TITLE}\nDate:"
-      " __________________________________"
-  )
-  cr2.font.size = Pt(9)
+    cp = c_claim.paragraphs[0]
+    cr1 = cp.add_run("CLAIMANT EXECUTION\n")
+    cr1.bold = True
+    cr1.font.size = Pt(10)
+    cr1.font.color.rgb = RGBColor(0, 102, 51)
+    cr2 = c_claim.add_paragraph().add_run(
+        f"Company: {COMPANY_NAME}\n\n\n"
+        "By: ___________________________________________________\n"
+        f"Name:  {OFFICER_NAME}\n"
+        f"Title: {OFFICER_TITLE}\n"
+        "Date:  ___________________________________________________"
+    )
+    cr2.font.size = Pt(9)
 
-  # Notary Block
-  np = c_notary.paragraphs[0]
-  nr1 = np.add_run("NOTARY ACKNOWLEDGMENT (TEXAS)\n")
-  nr1.bold = True
-  nr1.font.size = Pt(10)
-  nr1.font.color.rgb = RGBColor(0, 102, 51)
-  nr2 = c_notary.add_paragraph().add_run(
-      "State of Texas, County of Harris\n\nSworn to and subscribed before me on"
-      " this\n_____ day of __________________, 20____,\nby Ben Gil, Controller"
-      f" of {COMPANY_NAME}.\n\n________________________________________\nNotary"
-      " Public, State of Texas\nMy Commission Expires: __________________"
-  )
-  nr2.font.size = Pt(8.5)
-
-  # Save into memory buffer
   bio = io.BytesIO()
   doc.save(bio)
   bio.seek(0)
@@ -353,19 +389,27 @@ st.caption(
 )
 
 with st.form("waiver_form"):
-  st.subheader("1. Payment & Waiver Type")
+  st.subheader("1. Payment & Waiver Options")
   col1, col2 = st.columns(2)
   with col1:
     waiver_type = st.radio(
         "Payment Structure",
         options=["Progress Payment", "Typical / Final Payment"],
         help=(
-            "Select Progress Payment for partial installments or Final Payment"
-            " for full/single project completion."
+            "Select Progress Payment for installments or Typical/Final Payment"
+            " for full contract amounts."
         ),
     )
   with col2:
     doc_date = st.date_input("Effective Date", value=date.today())
+    include_notary = st.checkbox(
+        "Include Notary Acknowledgment Block",
+        value=True,
+        help=(
+            "Uncheck if the client does not require notarization. If checked,"
+            " provides dedicated space for stamp signature & notary seal."
+        ),
+    )
 
   st.subheader("2. Invoice Information")
   col3, col4 = st.columns(2)
@@ -373,7 +417,7 @@ with st.form("waiver_form"):
     invoices = st.text_input(
         "Invoice Number(s)",
         placeholder="e.g. 1261 or 1226, 1227",
-        help="You can enter single or comma-separated numbers.",
+        help="Single or comma-separated invoices.",
     )
   with col4:
     amount = st.number_input(
@@ -405,6 +449,7 @@ if submitted:
   else:
     waiver_data = {
         "waiver_type": waiver_type,
+        "include_notary": include_notary,
         "doc_date": doc_date.strftime("%B %d, %Y"),
         "invoices": invoices,
         "amount": amount,
@@ -418,7 +463,7 @@ if submitted:
     clean_prop = prop_name.strip().replace(" ", "_")
     filename = f"Lien_Waiver_{clean_prop}_Inv_{clean_inv}.docx"
 
-    st.success("Lien waiver created successfully!")
+    st.success("Lien waiver generated successfully!")
     st.download_button(
         label=f"⬇️ Download {filename}",
         data=docx_buffer,
