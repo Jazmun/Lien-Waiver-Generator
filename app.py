@@ -65,19 +65,19 @@ def format_currency_words(amount):
 def generate_docx(data):
     doc = docx.Document()
     
-    # Balanced 0.55" top/bottom and 0.75" side margins for an open, airy page
+    # Clean page margins for expanded breathing room
     for section in doc.sections:
         section.top_margin = Inches(0.55)
         section.bottom_margin = Inches(0.55)
         section.left_margin = Inches(0.75)
         section.right_margin = Inches(0.75)
 
-    # 1. Header (Logo & Company Info)
+    # 1. Header (Logo & Company Details)
     header_table = doc.add_table(rows=1, cols=2)
     header_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     header_table.autofit = False
 
-    col_widths = [Inches(3.2), Inches(3.8)]
+    col_widths = [Inches(3.3), Inches(3.7)]
     row = header_table.rows[0]
     row.cells[0].width, row.cells[1].width = col_widths
 
@@ -85,27 +85,27 @@ def generate_docx(data):
     left_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     left_run = left_p.add_run()
     if os.path.exists('logo.png'):
-        left_run.add_picture('logo.png', width=Inches(2.4))
+        left_run.add_picture('logo.png', width=Inches(2.5))
     else:
         left_run.text = COMPANY_NAME
         left_run.bold = True
-        left_run.font.size = Pt(13)
+        left_run.font.size = Pt(14)
         left_run.font.color.rgb = RGBColor(0, 128, 55)
 
     right_p = row.cells[1].paragraphs[0]
     right_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     r1 = right_p.add_run(f"{COMPANY_NAME.upper()}\n")
     r1.bold = True
-    r1.font.size = Pt(10)
+    r1.font.size = Pt(10.5)
     r1.font.color.rgb = RGBColor(0, 102, 51)
     r2 = right_p.add_run(f"{COMPANY_ADDRESS}\nPhone: {COMPANY_PHONE}  |  {COMPANY_EMAIL}\nRepresentative: {OFFICER_NAME} – {OFFICER_TITLE}")
-    r2.font.size = Pt(8.5)
-    r2.font.color.rgb = RGBColor(85, 85, 85)
+    r2.font.size = Pt(9)
+    r2.font.color.rgb = RGBColor(80, 80, 80)
 
-    # Accent Divider
+    # Decorative dividing rule
     div = doc.add_paragraph()
-    div.paragraph_format.space_before = Pt(3)
-    div.paragraph_format.space_after = Pt(8)
+    div.paragraph_format.space_before = Pt(4)
+    div.paragraph_format.space_after = Pt(10)
     div._p.get_or_add_pPr().append(parse_xml(f'<w:pBdr {nsdecls("w")}><w:bottom w:val="single" w:sz="16" w:space="1" w:color="008037"/></w:pBdr>'))
 
     # 2. Document Title
@@ -119,47 +119,47 @@ def generate_docx(data):
     title_p.paragraph_format.space_after = Pt(2)
     t_run = title_p.add_run(title_text)
     t_run.bold = True
-    t_run.font.size = Pt(12)
+    t_run.font.size = Pt(12.5)
     t_run.font.color.rgb = RGBColor(15, 34, 64)
 
     sub_p = doc.add_paragraph()
     sub_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub_p.paragraph_format.space_before = Pt(0)
-    sub_p.paragraph_format.space_after = Pt(7)
+    sub_p.paragraph_format.space_after = Pt(8)
     s_run = sub_p.add_run(statute_code)
     s_run.bold = True
-    s_run.font.size = Pt(9)
-    s_run.font.color.rgb = RGBColor(110, 110, 110)
+    s_run.font.size = Pt(9.5)
+    s_run.font.color.rgb = RGBColor(100, 100, 100)
 
-    # 3. Clean Notice Box (readable 8pt, sentence casing)
+    # 3. Clean Notice Box (Expanded 8.5pt font, open line spacing)
     notice_table = doc.add_table(rows=1, cols=1)
     notice_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     n_cell = notice_table.rows[0].cells[0]
     n_cell.width = Inches(7.0)
     set_cell_background(n_cell, "F5F8F5")
-    set_cell_margins(n_cell, top=65, bottom=65, left=110, right=110)
+    set_cell_margins(n_cell, top=70, bottom=70, left=120, right=120)
     set_cell_border(n_cell, 
                     top=dict(val='single', sz=4, color='B8D8C2'),
                     bottom=dict(val='single', sz=4, color='B8D8C2'),
-                    left=dict(val='single', sz=20, color='008037'),
+                    left=dict(val='single', sz=22, color='008037'),
                     right=dict(val='single', sz=4, color='B8D8C2'))
     np = n_cell.paragraphs[0]
     np.paragraph_format.space_before = Pt(0)
     np.paragraph_format.space_after = Pt(0)
-    np.paragraph_format.line_spacing = 1.15
+    np.paragraph_format.line_spacing = 1.2
     nr1 = np.add_run("NOTICE: ")
     nr1.bold = True
-    nr1.font.size = Pt(8)
+    nr1.font.size = Pt(8.5)
     nr1.font.color.rgb = RGBColor(0, 102, 51)
     nr2 = np.add_run("This document waives and releases lien, stop payment notice, and payment bond rights unconditionally and states that you have been paid for giving up those rights. It is enforceable against you if you sign it, even if you have not been paid. If you have not been paid, use a conditional release form.")
-    nr2.font.size = Pt(8)
-    nr2.font.color.rgb = RGBColor(70, 70, 70)
+    nr2.font.size = Pt(8.5)
+    nr2.font.color.rgb = RGBColor(60, 60, 60)
 
     sp = doc.add_paragraph()
-    sp.paragraph_format.space_before = Pt(5)
+    sp.paragraph_format.space_before = Pt(6)
     sp.paragraph_format.space_after = Pt(0)
 
-    # 4. Details Grid (Clear, legible 9pt font)
+    # 4. Details Grid (Comfortable 9.5pt font)
     table_rows = [
         ("Project / Property:", f"{data['property_name']}\n{data['property_address']}"),
         ("Property Owner / Customer:", data['owner_info']),
@@ -178,8 +178,8 @@ def generate_docx(data):
         c1.width, c2.width = Inches(2.2), Inches(4.8)
         set_cell_background(c1, "F8FAFC")
         set_cell_background(c2, "FFFFFF")
-        set_cell_margins(c1, top=50, bottom=50, left=90, right=90)
-        set_cell_margins(c2, top=50, bottom=50, left=90, right=90)
+        set_cell_margins(c1, top=60, bottom=60, left=100, right=100)
+        set_cell_margins(c2, top=60, bottom=60, left=100, right=100)
         for c in (c1, c2):
             set_cell_border(c, top=dict(sz=4, color="D8DEE4"), bottom=dict(sz=4, color="D8DEE4"), left=dict(sz=4, color="D8DEE4"), right=dict(sz=4, color="D8DEE4"))
         
@@ -188,24 +188,24 @@ def generate_docx(data):
         p1.paragraph_format.space_after = Pt(0)
         rn1 = p1.add_run(label)
         rn1.bold = True
-        rn1.font.size = Pt(9)
-        rn1.font.color.rgb = RGBColor(35, 45, 60)
+        rn1.font.size = Pt(9.5)
+        rn1.font.color.rgb = RGBColor(30, 41, 59)
         
         p2 = c2.paragraphs[0]
         p2.paragraph_format.space_before = Pt(0)
         p2.paragraph_format.space_after = Pt(0)
         rn2 = p2.add_run(val)
-        rn2.font.size = Pt(9)
-        rn2.font.color.rgb = RGBColor(0, 102, 51) if "Amount" in label else RGBColor(35, 45, 60)
+        rn2.font.size = Pt(9.5)
+        rn2.font.color.rgb = RGBColor(0, 102, 51) if "Amount" in label else RGBColor(30, 41, 59)
         if "Amount" in label:
             rn2.bold = True
 
-    # 5. Statutory Legal Body
+    # 5. Statutory Legal Body (Expanded 9.5pt font with 1.22 line spacing)
     owner_short = data['owner_info'].split('\n')[0]
     p_body1 = doc.add_paragraph()
-    p_body1.paragraph_format.space_before = Pt(7)
-    p_body1.paragraph_format.space_after = Pt(3)
-    p_body1.paragraph_format.line_spacing = 1.15
+    p_body1.paragraph_format.space_before = Pt(9)
+    p_body1.paragraph_format.space_after = Pt(5)
+    p_body1.paragraph_format.line_spacing = 1.22
     rb1 = p_body1.add_run(
         f"On receipt by the signer of this document of a check or electronic funds transfer from "
         f"{owner_short} in the sum of ${data['amount']:,.2f} payable to {COMPANY_NAME}, "
@@ -213,13 +213,13 @@ def generate_docx(data):
         f"this document becomes effective to release any mechanic's lien, stop payment notice, or any right against a payment bond "
         f"that the signer has on the property referenced above to the following extent:"
     )
-    rb1.font.size = Pt(9)
-    rb1.font.color.rgb = RGBColor(40, 45, 55)
+    rb1.font.size = Pt(9.5)
+    rb1.font.color.rgb = RGBColor(35, 40, 50)
 
     p_body2 = doc.add_paragraph()
     p_body2.paragraph_format.space_before = Pt(0)
-    p_body2.paragraph_format.space_after = Pt(6)
-    p_body2.paragraph_format.line_spacing = 1.15
+    p_body2.paragraph_format.space_after = Pt(8)
+    p_body2.paragraph_format.line_spacing = 1.22
 
     if is_progress:
         rb2_text = (
@@ -234,10 +234,10 @@ def generate_docx(data):
             f"{owner_short} as documented under Invoice(s) #{data['invoices']}. Before any recipient of this document relies on it, the recipient should verify evidence of payment to the signer."
         )
     rb2 = p_body2.add_run(rb2_text)
-    rb2.font.size = Pt(9)
-    rb2.font.color.rgb = RGBColor(40, 45, 55)
+    rb2.font.size = Pt(9.5)
+    rb2.font.color.rgb = RGBColor(35, 40, 50)
 
-    # 6. Signatures Grid (Spacious and balanced)
+    # 6. Signatures Grid (Open, easily readable blocks)
     include_notary = data["include_notary"]
 
     if include_notary:
@@ -249,66 +249,10 @@ def generate_docx(data):
         
         for c in (c_claim, c_notary):
             set_cell_background(c, "FAFBFC")
-            set_cell_margins(c, top=65, bottom=65, left=90, right=90)
-            set_cell_border(c, top=dict(sz=6, color="D0D7DE"), bottom=dict(sz=6, color="D0D7DE"), left=dict(sz=6, color="D0D7DE"), right=dict(sz=6, color="D0D7DE"))
+            set_cell_margins(c, top=70, bottom=70, left=100, right=100)
+            set_cell_border(c, top=dict(sz=6, color="CFD6DF"), bottom=dict(sz=6, color="CFD6DF"), left=dict(sz=6, color="CFD6DF"), right=dict(sz=6, color="CFD6DF"))
         
         # Claimant Execution Block
-        cp = c_claim.paragraphs[0]
-        cp.paragraph_format.space_before = Pt(0)
-        cp.paragraph_format.space_after = Pt(3)
-        cr1 = cp.add_run("CLAIMANT EXECUTION")
-        cr1.bold = True
-        cr1.font.size = Pt(9.5)
-        cr1.font.color.rgb = RGBColor(0, 102, 51)
-
-        cp2 = c_claim.add_paragraph()
-        cp2.paragraph_format.space_before = Pt(0)
-        cp2.paragraph_format.space_after = Pt(0)
-        cp2.paragraph_format.line_spacing = 1.2
-        cr2 = cp2.add_run(
-            f"Company: {COMPANY_NAME}\n\n"
-            f"By: ____________________________________\n"
-            f"Name:  {OFFICER_NAME}\n"
-            f"Title: {OFFICER_TITLE}\n"
-            f"Date:  __________________________________"
-        )
-        cr2.font.size = Pt(9)
-        cr2.font.color.rgb = RGBColor(40, 45, 55)
-
-        # Notary Block
-        np = c_notary.paragraphs[0]
-        np.paragraph_format.space_before = Pt(0)
-        np.paragraph_format.space_after = Pt(3)
-        nr1 = np.add_run("NOTARY ACKNOWLEDGMENT (TEXAS)")
-        nr1.bold = True
-        nr1.font.size = Pt(9.5)
-        nr1.font.color.rgb = RGBColor(0, 102, 51)
-
-        np2 = c_notary.add_paragraph()
-        np2.paragraph_format.space_before = Pt(0)
-        np2.paragraph_format.space_after = Pt(0)
-        np2.paragraph_format.line_spacing = 1.2
-        nr2 = np2.add_run(
-            "State of Texas, County of Harris\n\n"
-            "Sworn to and subscribed before me on this\n"
-            "_____ day of __________________, 20____,\n"
-            f"by {OFFICER_NAME}, {OFFICER_TITLE} of {COMPANY_NAME}.\n\n\n"
-            "________________________________________\n"
-            "Notary Public, State of Texas"
-        )
-        nr2.font.size = Pt(9)
-        nr2.font.color.rgb = RGBColor(40, 45, 55)
-
-    else:
-        sig_table = doc.add_table(rows=1, cols=1)
-        sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-        sig_table.autofit = False
-        c_claim = sig_table.rows[0].cells[0]
-        c_claim.width = Inches(7.0)
-        set_cell_background(c_claim, "FAFBFC")
-        set_cell_margins(c_claim, top=75, bottom=75, left=110, right=110)
-        set_cell_border(c_claim, top=dict(sz=6, color="D0D7DE"), bottom=dict(sz=6, color="D0D7DE"), left=dict(sz=6, color="D0D7DE"), right=dict(sz=6, color="D0D7DE"))
-        
         cp = c_claim.paragraphs[0]
         cp.paragraph_format.space_before = Pt(0)
         cp.paragraph_format.space_after = Pt(3)
@@ -323,13 +267,69 @@ def generate_docx(data):
         cp2.paragraph_format.line_spacing = 1.25
         cr2 = cp2.add_run(
             f"Company: {COMPANY_NAME}\n\n"
+            f"By: ____________________________________\n"
+            f"Name:  {OFFICER_NAME}\n"
+            f"Title: {OFFICER_TITLE}\n"
+            f"Date:  __________________________________"
+        )
+        cr2.font.size = Pt(9.5)
+        cr2.font.color.rgb = RGBColor(35, 40, 50)
+
+        # Notary Block
+        np = c_notary.paragraphs[0]
+        np.paragraph_format.space_before = Pt(0)
+        np.paragraph_format.space_after = Pt(3)
+        nr1 = np.add_run("NOTARY ACKNOWLEDGMENT (TEXAS)")
+        nr1.bold = True
+        nr1.font.size = Pt(9.5)
+        nr1.font.color.rgb = RGBColor(0, 102, 51)
+
+        np2 = c_notary.add_paragraph()
+        np2.paragraph_format.space_before = Pt(0)
+        np2.paragraph_format.space_after = Pt(0)
+        np2.paragraph_format.line_spacing = 1.25
+        nr2 = np2.add_run(
+            "State of Texas, County of Harris\n\n"
+            "Sworn to and subscribed before me on this\n"
+            "_____ day of __________________, 20____,\n"
+            f"by {OFFICER_NAME}, {OFFICER_TITLE} of {COMPANY_NAME}.\n\n\n"
+            "________________________________________\n"
+            "Notary Public, State of Texas"
+        )
+        nr2.font.size = Pt(9.5)
+        nr2.font.color.rgb = RGBColor(35, 40, 50)
+
+    else:
+        sig_table = doc.add_table(rows=1, cols=1)
+        sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        sig_table.autofit = False
+        c_claim = sig_table.rows[0].cells[0]
+        c_claim.width = Inches(7.0)
+        set_cell_background(c_claim, "FAFBFC")
+        set_cell_margins(c_claim, top=80, bottom=80, left=120, right=120)
+        set_cell_border(c_claim, top=dict(sz=6, color="CFD6DF"), bottom=dict(sz=6, color="CFD6DF"), left=dict(sz=6, color="CFD6DF"), right=dict(sz=6, color="CFD6DF"))
+        
+        cp = c_claim.paragraphs[0]
+        cp.paragraph_format.space_before = Pt(0)
+        cp.paragraph_format.space_after = Pt(3)
+        cr1 = cp.add_run("CLAIMANT EXECUTION")
+        cr1.bold = True
+        cr1.font.size = Pt(10)
+        cr1.font.color.rgb = RGBColor(0, 102, 51)
+
+        cp2 = c_claim.add_paragraph()
+        cp2.paragraph_format.space_before = Pt(0)
+        cp2.paragraph_format.space_after = Pt(0)
+        cp2.paragraph_format.line_spacing = 1.3
+        cr2 = cp2.add_run(
+            f"Company: {COMPANY_NAME}\n\n"
             f"By: ___________________________________________________\n"
             f"Name:  {OFFICER_NAME}\n"
             f"Title: {OFFICER_TITLE}\n"
             f"Date:  ___________________________________________________"
         )
-        cr2.font.size = Pt(9)
-        cr2.font.color.rgb = RGBColor(40, 45, 55)
+        cr2.font.size = Pt(9.5)
+        cr2.font.color.rgb = RGBColor(35, 40, 50)
 
     bio = io.BytesIO()
     doc.save(bio)
